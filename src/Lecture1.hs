@@ -94,9 +94,9 @@ function.
 
 minmax :: Int -> Int -> Int -> Int
 minmax x y z = 
-    let maximum = max (max x y) z
-        minimum = min (min x y) z
-    in maximum - minimum
+    let mx = max (max x y) z
+        mn = min (min x y) z
+    in mx - mn
 
 {- | Implement a function that takes a string, start and end positions
 and returns a substring of a given string from the start position to
@@ -147,16 +147,34 @@ and lower than 6 elements (4, 5, 6, 7, 8 and 9).
 
 🕯 HINT: Use recursion to implement this function.
 -}
-lowerAndGreater :: Int -> [Int] -> [Char]
-lowerAndGreater n list = 
-    let calculateMin x acc l = if null l then acc else calculateMin x (if (head l) < x then (acc + 1) else acc) (tail l)
-        calculateMax x acc l = if null l then acc else calculateMax x (if (head l) > x then (acc + 1) else acc) (tail l)
-    in show n ++ " is greater than " ++ show (calculateMin n 0 list) ++ " elements and lower than " ++ show (calculateMax n 0 list) ++ " elements"
 
--- Also works (implementation with where clause):
+-- Simpler implementation with let and straiforward functions:
+-- lowerAndGreater :: Int -> [Int] -> [Char]
+-- lowerAndGreater n list = 
+--     let calculateMin x acc l = if null l then acc else calculateMin x (if (head l) < x then (acc + 1) else acc) (tail l)
+--         calculateMax x acc l = if null l then acc else calculateMax x (if (head l) > x then (acc + 1) else acc) (tail l)
+--     in show n ++ " is greater than " ++ show (calculateMin n 0 list) ++ " elements and lower than " ++ show (calculateMax n 0 list) ++ " elements"
+
+-- Implementation with where clause and operator passing as an argument:
+-- lowerAndGreater :: Int -> [Int] -> [Char]
 -- lowerAndGreater n list = show n ++ " is greater than " ++ show (calculateMin n 0 list) ++ " elements and lower than " ++ show (calculateMax n 0 list) ++ " elements"
 --     where 
+--         calculate :: Int -> Int -> [Int] -> (Int -> Int -> Bool) -> Int
+--         calculate x acc l op = if null l then acc else (calculate x (if (op (head l) x) then (acc + 1) else acc) (tail l) op)
 --         calculateMin :: Int -> Int -> [Int] -> Int
---         calculateMin x acc l = if null l then acc else (calculateMin x (if (head l) < x then (acc + 1) else acc) (tail l))
+--         calculateMin x acc l = calculate x acc l (>)
 --         calculateMax :: Int -> Int -> [Int] -> Int
---         calculateMax x acc l = if null l then acc else (calculateMax x (if (head l) > x then (acc + 1) else acc) (tail l))
+--         calculateMax x acc l = calculate x acc l (<)
+
+-- Implementation with single list traversal
+lowerAndGreater :: Int -> [Int] -> [Char]
+lowerAndGreater n list = show n ++ " is greater than " ++ show mn ++ " elements and lower than " ++ show mx ++ " elements"
+    where 
+        getMinMax :: Int -> Int -> Int -> [Int] -> (Int, Int)
+        getMinMax x accMin accMax l 
+            | null l = (accMin, accMax) 
+            | (head l) > x = getMinMax x accMin (accMax + 1) (tail l)
+            | (head l) < x = getMinMax x (accMin + 1) accMax (tail l)
+            | otherwise = getMinMax x accMin accMax (tail l)
+        (mn, mx) = getMinMax n 0 0 list 
+
