@@ -115,7 +115,7 @@ string.
 -}
 subString :: Int -> Int -> [Char] -> [Char]
 subString start end str = 
-    let startIndex = if start < 0 then 0 else start
+    let startIndex = max start 0
     in if end < 0 then "" else (take ((end - startIndex) + 1) (drop startIndex str))
 
 {- | Write a function that takes a String — space separated numbers,
@@ -127,12 +127,7 @@ and finds a sum of the numbers inside this string.
 The string contains only spaces and/or numbers.
 -}
 strSum :: [Char] -> Int
-strSum str = sumList 0 (map (\x -> read (x) :: Int) (words str))
-    where 
-        sumList result list = 
-            if null list
-                then result
-                else sumList (result + head list) (tail list)
+strSum str = sum (map read (words str))
 
 {- | Write a function that takes a number and a list of numbers and
 returns a string, saying how many elements of the list are strictly
