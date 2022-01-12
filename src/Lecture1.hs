@@ -35,6 +35,7 @@ module Lecture1
 its behaviour, possible types for the function arguments and write the
 type signature explicitly.
 -}
+makeSnippet :: Int -> [Char] -> [Char]
 makeSnippet limit text = take limit ("Description: " ++ text) ++ "..."
 
 {- | Implement a function that takes two numbers and finds sum of
@@ -50,7 +51,11 @@ Explanation: @sumOfSquares 3 4@ should be equal to @9 + 16@ and this
 is 25.
 -}
 -- DON'T FORGET TO SPECIFY THE TYPE IN HERE
-sumOfSquares x y = error "TODO!"
+square :: Int -> Int
+square x = x * x
+
+sumOfSquares :: Int -> Int -> Int
+sumOfSquares x y = square x + square y
 
 {- | Implement a function that returns the last digit of a given number.
 
@@ -63,7 +68,10 @@ sumOfSquares x y = error "TODO!"
 
 -}
 -- DON'T FORGET TO SPECIFY THE TYPE IN HERE
-lastDigit n = error "lastDigit: Not implemented!"
+lastDigit :: Int -> Int
+lastDigit n = if n < 0 
+    then (mod n (-10)) * (-1)
+    else mod n 10 
 
 {- | Write a function that takes three numbers and returns the
 difference between the biggest number and the smallest one.
@@ -77,7 +85,18 @@ and 1 is the smallest, and 7 - 1 = 6.
 Try to use local variables (either let-in or where) to implement this
 function.
 -}
-minmax x y z = error "TODO"
+
+-- max :: Int -> Int -> Int
+-- max x y = if x < y then y else x
+
+-- min :: Int -> Int -> Int
+-- min x y = if x > y then y else x
+
+minmax :: Int -> Int -> Int -> Int
+minmax x y z = 
+    let maximum = max (max x y) z
+        minimum = min (min x y) z
+    in maximum - minimum
 
 {- | Implement a function that takes a string, start and end positions
 and returns a substring of a given string from the start position to
@@ -94,7 +113,10 @@ start position can be considered as zero (e.g. substring from the
 first character) and negative end position should result in an empty
 string.
 -}
-subString start end str = error "TODO"
+subString :: Int -> Int -> [Char] -> [Char]
+subString start end str = 
+    let startIndex = if start < 0 then 0 else start
+    in if end < 0 then "" else (take ((end - startIndex) + 1) (drop startIndex str))
 
 {- | Write a function that takes a String — space separated numbers,
 and finds a sum of the numbers inside this string.
@@ -104,7 +126,13 @@ and finds a sum of the numbers inside this string.
 
 The string contains only spaces and/or numbers.
 -}
-strSum str = error "TODO"
+strSum :: [Char] -> Int
+strSum str = sumList 0 (map (\x -> read (x) :: Int) (words str))
+    where 
+        sumList result list = 
+            if null list
+                then result
+                else sumList (result + head list) (tail list)
 
 {- | Write a function that takes a number and a list of numbers and
 returns a string, saying how many elements of the list are strictly
@@ -119,4 +147,16 @@ and lower than 6 elements (4, 5, 6, 7, 8 and 9).
 
 🕯 HINT: Use recursion to implement this function.
 -}
-lowerAndGreater n list = error "TODO"
+lowerAndGreater :: Int -> [Int] -> [Char]
+lowerAndGreater n list = 
+    let calculateMin x acc l = if null l then acc else calculateMin x (if (head l) < x then (acc + 1) else acc) (tail l)
+        calculateMax x acc l = if null l then acc else calculateMax x (if (head l) > x then (acc + 1) else acc) (tail l)
+    in show n ++ " is greater than " ++ show (calculateMin n 0 list) ++ " elements and lower than " ++ show (calculateMax n 0 list) ++ " elements"
+
+-- Also works (implementation with where clause):
+-- lowerAndGreater n list = show n ++ " is greater than " ++ show (calculateMin n 0 list) ++ " elements and lower than " ++ show (calculateMax n 0 list) ++ " elements"
+--     where 
+--         calculateMin :: Int -> Int -> [Int] -> Int
+--         calculateMin x acc l = if null l then acc else (calculateMin x (if (head l) < x then (acc + 1) else acc) (tail l))
+--         calculateMax :: Int -> Int -> [Int] -> Int
+--         calculateMax x acc l = if null l then acc else (calculateMax x (if (head l) > x then (acc + 1) else acc) (tail l))
